@@ -1,0 +1,8 @@
+{
+  "text.sleepwarp.player_sleeping": "%s gracz śpi.",
+  "text.sleepwarp.players_sleeping": "%s graczy śpi.",
+  "text.sleepwarp.players_sleeping.more_required": "%s graczy śpi. Wymagane jest %s więcej, aby posunąć czas do przodu.",
+  "text.sleepwarp.day": "Dzień %s",
+  "text.sleepwarp.until_thunderstorm": "%s sekund do przejścia burzy.",
+  "text.sleepwarp.until_dawn": "%s sekund do poranka."
+}

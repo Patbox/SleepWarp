@@ -6,8 +6,11 @@ import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
+import net.minecraft.screen.ScreenTexts;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -99,8 +102,13 @@ public class WarpEngine {
         for (var tick = 0; tick < warpTickCount; tick++) {
             world.tickWeather();
             world.calculateAmbientDarkness();
-            world.tickTime();
-            
+            if (JsonConfiguration.getUserInstance().getValue("tick_game_time").getAsBoolean()) {
+                world.tickTime();
+            } else {
+                world.setTimeOfDay(world.getTimeOfDay() + 1L);
+            }
+
+
             var packet = new WorldTimeUpdateS2CPacket(world.getTime(), world.getTimeOfDay(), doDaylightCycle);
             world.getServer().getPlayerManager().sendToDimension(packet, world.getRegistryKey());
             
@@ -132,41 +140,41 @@ public class WarpEngine {
         }
         
         worldTime = world.getTimeOfDay() % DAY_LENGTH_TICKS;
-        var actionBarText = Text.empty().formatted(Formatting.WHITE);
+        MutableText actionBarText = null;
         
         if (worldTime == 0) {
             if (world.isRaining()) world.resetWeather();
             world.wakeSleepingPlayers();
             
             var currentDay = String.valueOf(world.getTimeOfDay() / DAY_LENGTH_TICKS);
-            actionBarText.append("Day ").append(Text.literal(currentDay).formatted(Formatting.GOLD));
+            actionBarText = Text.translatable("text.sleepwarp.day", Text.literal(currentDay).formatted(Formatting.GOLD));
         } else if (worldTime > 0) {
             var remainingTicks = world.isThundering()
                     ? world.worldProperties.getThunderTime()
                     : DAY_LENGTH_TICKS - worldTime;
             
             if (remainingTicks > 0) {
+                actionBarText = Text.empty();
                 if (totalPlayers > 1) {
                     var requiredPercentage = 1.0 - playerMultiplier;
                     var actualPercentage = (double) sleepingPlayers / totalPlayers;
                     var indicatorColor = actualPercentage >= requiredPercentage ? Formatting.DARK_GREEN : Formatting.RED;
                     var playerNoun = (sleepingPlayers == 1 ? "player" : "players");
-                    
-                    actionBarText.append(Text.literal("⌛ " + sleepingPlayers + ' ').formatted(indicatorColor));
-                    actionBarText.append(Text.literal(playerNoun + " sleeping. "));
+                    actionBarText.append(Text.translatable("text.sleepwarp." + playerNoun + "_sleeping", Text.literal("⌛ " + sleepingPlayers + ' ').formatted(indicatorColor)));
                 } else {
-                    actionBarText.append(Text.literal("⌛ ").formatted(Formatting.GOLD));
+                    actionBarText.append(Text.literal("⌛").formatted(Formatting.GOLD));
                 }
                 
                 var remainingSeconds = Math.round(((double) remainingTicks / warpTickCount) / 20);
-                actionBarText.append(Text.literal(String.valueOf(remainingSeconds)));
-                actionBarText.append("s until ")
-                        .append(world.isThundering() ? "the thunderstorm passes" : "dawn");
+                actionBarText.append(ScreenTexts.space());
+                actionBarText.append(Text.translatable("text.sleepwarp.until_" + (world.isThundering() ? "thunderstorm" : "dawn"), Text.literal(String.valueOf(remainingSeconds))));
             }
         }
         
         if (JsonConfiguration.getUserInstance().getValue("action_bar_messages").getAsBoolean()) {
-            world.getPlayers().forEach(player -> player.sendMessage(actionBarText, true));
+            for (var player : world.getPlayers()) {
+                player.sendMessage(actionBarText, true);
+            }
         }
     }
 

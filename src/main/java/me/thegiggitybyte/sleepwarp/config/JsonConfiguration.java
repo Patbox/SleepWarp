@@ -26,6 +26,7 @@ public class JsonConfiguration {
         defaultJson.addProperty("player_multiplier", 0.6);
         defaultJson.addProperty("action_bar_messages", true);
         defaultJson.addProperty("use_sleep_percentage", false);
+        defaultJson.addProperty("tick_game_time", true);
         defaultJson.addProperty("tick_block_entities", true);
         defaultJson.addProperty("tick_random_block", true);
         defaultJson.addProperty("tick_snow_accumulation", true);
@@ -48,7 +49,7 @@ public class JsonConfiguration {
                 .getConfigDir()
                 .normalize()
                 .toAbsolutePath()
-                .resolveSibling("config/sleepwarp-" + environment + ".json");
+                .resolveSibling("config/sleepwarp- " + environment + ".json");
         
         USER_INSTANCE = new JsonConfiguration();
         USER_INSTANCE.filePath = filePath;

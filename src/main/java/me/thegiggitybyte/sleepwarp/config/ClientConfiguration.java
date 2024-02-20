@@ -1,5 +1,5 @@
 package me.thegiggitybyte.sleepwarp.config;
-
+/*
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.*;
@@ -238,4 +238,4 @@ public class ClientConfiguration implements ModMenuApi {
                 .customController(doubleOption -> new DoubleSliderController(doubleOption, 0.1, 1.0, 0.05))
                 .build();
     }
-}
+}*/

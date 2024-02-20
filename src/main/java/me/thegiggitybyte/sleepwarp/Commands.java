@@ -22,7 +22,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 public class Commands {
     static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            var sleepWarpCommand = dispatcher.register(literal("sleepwarp"));
+            var sleepWarpCommand = dispatcher.register(literal("sleepwarp").requires(source -> source.hasPermissionLevel(1)));
             dispatcher.register(literal("sleep").redirect(sleepWarpCommand));
             
             var statusCommand = literal("status").executes(Commands::executeStatusCommand).build();

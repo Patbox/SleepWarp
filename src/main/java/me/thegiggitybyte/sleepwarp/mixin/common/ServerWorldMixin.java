@@ -46,32 +46,31 @@ public abstract class ServerWorldMixin extends World {
             ++playerCount;
         }
         
-        var messageText = Text.empty();
+        Text messageText = null;
         var tallyText = Text.empty()
                 .append(Text.literal(String.valueOf(inBedCount)))
                 .append("/")
                 .append(Text.literal(String.valueOf(playerCount)));
         
         if (inBedCount == 0) {
-            messageText.append(tallyText.formatted(Formatting.DARK_GRAY)).append(" players sleeping");
+            messageText = Text.translatable("text.sleepwarp.players_sleeping", tallyText.formatted(Formatting.DARK_GRAY));
         } else if (JsonConfiguration.getUserInstance().getValue("use_sleep_percentage").getAsBoolean()) {
             var percentRequired = world.getGameRules().getInt(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
             var minSleepingCount = Math.max(1, (playerCount * percentRequired) / 100);
             
             if (sleepingCount < minSleepingCount && minSleepingCount - inBedCount > 0) {
-                messageText.append(tallyText.formatted(Formatting.RED))
-                        .append(" players sleeping. ")
-                        .append(String.valueOf((minSleepingCount - inBedCount)))
-                        .append(" more needed to advance time.");
+                messageText = Text.translatable("text.sleepwarp.players_sleeping.more_required", tallyText.formatted(Formatting.RED), String.valueOf((minSleepingCount - inBedCount)));
             } else {
-                messageText.append(tallyText.formatted(Formatting.DARK_GREEN)).append(" players sleeping");
+                messageText = Text.translatable("text.sleepwarp.players_sleeping", tallyText.formatted(Formatting.DARK_GREEN));
             }
         } else if (sleepingCount == 0) {
-            messageText.append(tallyText.formatted(Formatting.YELLOW)).append(" players sleeping");
+            messageText = Text.translatable("text.sleepwarp.players_sleeping", tallyText.formatted(Formatting.YELLOW));
         }
         
-        if (messageText.getSiblings().size() > 0) {
-            world.getPlayers().forEach(player -> player.sendMessage(messageText, true));
+        if (messageText != null) {
+            for (var player : world.getPlayers()) {
+                player.sendMessage(messageText, true);
+            }
         }
     }
 }
