@@ -1,6 +1,6 @@
 package me.thegiggitybyte.sleepwarp.runnable;
 
-import me.thegiggitybyte.sleepwarp.config.JsonConfiguration;
+import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
@@ -22,30 +22,26 @@ public class MobTickRunnable implements Runnable {
     
     @Override
     public void run() {
-        var canTickAnimals = JsonConfiguration.getUserInstance().getValue("tick_animals").getAsBoolean();
-        var canTickMonsters = JsonConfiguration.getUserInstance().getValue("tick_monsters").getAsBoolean();
         var animals = new ArrayList<MobEntity>();
         var monsters = new ArrayList<MobEntity>();
         
         world.entityList.forEach(entity -> {
             if (entity.isRemoved()) return;
             
-            if (canTickAnimals && entity instanceof AnimalEntity animal)
+            if (SleepWarpConfig.tick_animals && entity instanceof AnimalEntity animal)
                 animals.add(animal);
-            else if (canTickMonsters && entity instanceof HostileEntity monster)
+            else if (SleepWarpConfig.tick_monsters && entity instanceof HostileEntity monster)
                 monsters.add(monster);
         });
         
-        if (canTickAnimals) {
-            var animalTickMultiplier = JsonConfiguration.getUserInstance().getValue("animal_tick_multiplier").getAsDouble();
-            for (var tick = 0; tick < tickCount * animalTickMultiplier; tick++) {
+        if (SleepWarpConfig.tick_animals) {
+            for (var tick = 0; tick < tickCount * SleepWarpConfig.animal_tick_multiplier; tick++) {
                 tickMobs(animals);
             }
         }
         
-        if (canTickMonsters) {
-            var monsterTickMultiplier = JsonConfiguration.getUserInstance().getValue("monster_tick_multiplier").getAsDouble();
-            for (var tick = 0; tick < tickCount * monsterTickMultiplier; tick++) {
+        if (SleepWarpConfig.tick_monsters) {
+            for (var tick = 0; tick < tickCount * SleepWarpConfig.monster_tick_multiplier; tick++) {
                 tickMobs(monsters);
             }
         }

@@ -1,6 +1,6 @@
 package me.thegiggitybyte.sleepwarp.runnable;
 
-import me.thegiggitybyte.sleepwarp.config.JsonConfiguration;
+import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SnowBlock;
@@ -25,11 +25,11 @@ public class PrecipitationTickRunnable implements Runnable {
         var topBlockPos = world.getTopPosition(Heightmap.Type.MOTION_BLOCKING, randomPos);
         var biome = world.getBiome(topBlockPos).value();
         
-        if (JsonConfiguration.getUserInstance().getValue("tick_ice_freezing").getAsBoolean() && biome.canSetIce(world, topBlockPos.down())) {
+        if (SleepWarpConfig.tick_ice_freezing && biome.canSetIce(world, topBlockPos.down())) {
             world.setBlockState(topBlockPos.down(), Blocks.ICE.getDefaultState());
         }
         
-        if (JsonConfiguration.getUserInstance().getValue("tick_snow_accumulation").getAsBoolean()) {
+        if (SleepWarpConfig.tick_snow_accumulation) {
             var layerHeight = world.getGameRules().getInt(GameRules.SNOW_ACCUMULATION_HEIGHT);
             if (layerHeight == 0 || !biome.canSetSnow(world, topBlockPos)) return;
             

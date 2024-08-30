@@ -1,6 +1,6 @@
 package me.thegiggitybyte.sleepwarp.runnable;
 
-import me.thegiggitybyte.sleepwarp.config.JsonConfiguration;
+import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.chunk.BlockEntityTickInvoker;
 
@@ -19,7 +19,7 @@ public class BlockTickRunnable implements Runnable {
                     tickInvoker.tick();
                 }
             } catch (Exception e) {
-                if (JsonConfiguration.getUserInstance().getValue("log_error_messages").getAsBoolean())
+                if (SleepWarpConfig.log_error_messages)
                     e.fillInStackTrace();
             }
         }

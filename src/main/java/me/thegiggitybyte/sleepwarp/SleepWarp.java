@@ -1,13 +1,12 @@
 package me.thegiggitybyte.sleepwarp;
 
-import me.thegiggitybyte.sleepwarp.config.JsonConfiguration;
-import net.fabricmc.api.ClientModInitializer;
+import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
 import net.fabricmc.api.ModInitializer;
 
 public class SleepWarp implements ModInitializer {
     @Override
     public void onInitialize() {
-        JsonConfiguration.getUserInstance();
+        SleepWarpConfig.init("sleepwarp", SleepWarpConfig.class);
         Commands.register();
         WarpEngine.initialize();
     }

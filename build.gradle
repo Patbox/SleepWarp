@@ -23,14 +23,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation include('xyz.nucleoid:server-translations-api:2.3.1+1.21-pre2')
-
-    //modImplementation("dev.isxander.yacl:yet-another-config-lib-fabric:${project.yacl_version}") {
-    //    exclude group: "net.fabricmc.fabric-api"
-    //}
-    //modImplementation("com.terraformersmc:modmenu:${project.mod_menu_version}"){
-    //    exclude group: "net.fabricmc.fabric-api"
-    //}
+    modImplementation include("xyz.nucleoid:server-translations-api:${project.server_translation_version}")
+    modImplementation include ("maven.modrinth:midnightlib:${project.midnightlib_version}-fabric")
 }
 
 loom {
