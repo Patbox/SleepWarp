@@ -36,6 +36,7 @@ public class JsonConfiguration {
         defaultJson.addProperty("tick_animals", false);
         defaultJson.addProperty("monster_tick_multiplier", 0.25);
         defaultJson.addProperty("animal_tick_multiplier", 0.25);
+        defaultJson.addProperty("log_error_messages", false);
         
         DEFAULT_INSTANCE = new JsonConfiguration();
         DEFAULT_INSTANCE.jsonObject = defaultJson;
