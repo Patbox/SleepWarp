@@ -85,7 +85,7 @@ public class WarpEngine {
         }
         
         // Collect valid chunks to tick.
-        var chunkStorage = world.getChunkManager().threadedAnvilChunkStorage;
+        var chunkStorage = world.getChunkManager().chunkLoadingManager;
         var chunks = new ArrayList<WorldChunk>();
         
         for (ChunkHolder chunkHolder : chunkStorage.entryIterator()) {
