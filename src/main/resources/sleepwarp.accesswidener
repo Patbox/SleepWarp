@@ -17,6 +17,6 @@ accessible method net/minecraft/server/world/ServerWorld wakeSleepingPlayers ()V
 accessible method net/minecraft/server/world/ServerWorld shouldCancelSpawn (Lnet/minecraft/entity/Entity;)Z
 accessible method net/minecraft/server/world/ServerWorld getLightningPos (Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/math/BlockPos;
 
-# ThreadedAnvilChunkStorage
-accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage entryIterator ()Ljava/lang/Iterable;
-accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage shouldTick (Lnet/minecraft/util/math/ChunkPos;)Z
+# ServerChunkLoadingManager
+accessible method net/minecraft/server/world/ServerChunkLoadingManager entryIterator ()Ljava/lang/Iterable;
+accessible method net/minecraft/server/world/ServerChunkLoadingManager shouldTick (Lnet/minecraft/util/math/ChunkPos;)Z

@@ -1,6 +1,6 @@
 package me.thegiggitybyte.sleepwarp.mixin.common;
 
-import me.thegiggitybyte.sleepwarp.config.JsonConfiguration;
+import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -33,7 +33,7 @@ public abstract class ServerWorldMixin extends World {
     @Redirect(method = "updateSleepingPlayers", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;sendSleepingStatus()V"))
     private void sendWarpStatus(ServerWorld world) {
         if (world.getServer().isSingleplayer() || !world.getServer().isRemote() || world.getPlayers().size() == 1) return;
-        if (!JsonConfiguration.getUserInstance().getValue("action_bar_messages").getAsBoolean()) return;
+        if (!SleepWarpConfig.action_bar_messages) return;
         
         long playerCount = 0, inBedCount = 0, sleepingCount = 0;
         
@@ -54,7 +54,7 @@ public abstract class ServerWorldMixin extends World {
         
         if (inBedCount == 0) {
             messageText = Text.translatable("text.sleepwarp.players_sleeping", tallyText.formatted(Formatting.DARK_GRAY));
-        } else if (JsonConfiguration.getUserInstance().getValue("use_sleep_percentage").getAsBoolean()) {
+        } else if (SleepWarpConfig.use_sleep_percentage) {
             var percentRequired = world.getGameRules().getInt(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
             var minSleepingCount = Math.max(1, (playerCount * percentRequired) / 100);
             

@@ -1,13 +1,12 @@
 package me.thegiggitybyte.sleepwarp;
 
-import me.thegiggitybyte.sleepwarp.config.JsonConfiguration;
+import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
 import me.thegiggitybyte.sleepwarp.runnable.*;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.screen.ScreenTexts;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
@@ -21,7 +20,6 @@ import net.minecraft.world.chunk.WorldChunk;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Handles incrementing time and simulating the world.
@@ -58,15 +56,15 @@ public class WarpEngine {
         var sleepingPlayers = world.getPlayers().stream().filter(PlayerEntity::canResetTimeBySleeping).count();
         if (sleepingPlayers == 0) return;
         
-        if (JsonConfiguration.getUserInstance().getValue("use_sleep_percentage").getAsBoolean()) {
+        if (SleepWarpConfig.use_sleep_percentage) {
             var percentRequired = world.getGameRules().getInt(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
             var minimumSleeping = Math.max(1, (totalPlayers * percentRequired) / 100);
             if (sleepingPlayers < minimumSleeping) return;
         }
         
         // Determine amount of ticks to add to time.
-        var maxTicksAdded = Math.max(10, JsonConfiguration.getUserInstance().getValue("max_ticks_added").getAsInt());
-        var playerMultiplier = Math.max(0.05, Math.min(1.0, JsonConfiguration.getUserInstance().getValue("player_multiplier").getAsDouble()));
+        var maxTicksAdded = Math.max(10, SleepWarpConfig.max_ticks_added);
+        var playerMultiplier = Math.max(0.05, Math.min(1.0, SleepWarpConfig.player_multiplier));
         var worldTime = world.getTimeOfDay() % DAY_LENGTH_TICKS;
         int warpTickCount;
         
@@ -85,7 +83,7 @@ public class WarpEngine {
         }
         
         // Collect valid chunks to tick.
-        var chunkStorage = world.getChunkManager().threadedAnvilChunkStorage;
+        var chunkStorage = world.getChunkManager().chunkLoadingManager;
         var chunks = new ArrayList<WorldChunk>();
         
         for (ChunkHolder chunkHolder : chunkStorage.entryIterator()) {
@@ -102,7 +100,7 @@ public class WarpEngine {
         for (var tick = 0; tick < warpTickCount; tick++) {
             world.tickWeather();
             world.calculateAmbientDarkness();
-            if (JsonConfiguration.getUserInstance().getValue("tick_game_time").getAsBoolean()) {
+            if (SleepWarpConfig.tick_game_time) {
                 world.tickTime();
             } else {
                 world.setTimeOfDay(world.getTimeOfDay() + 1L);
@@ -114,11 +112,11 @@ public class WarpEngine {
             
             Collections.shuffle(chunks);
             for (var chunk : chunks) {
-                if (JsonConfiguration.getUserInstance().getValue("tick_random_block").getAsBoolean()) {
+                if (SleepWarpConfig.tick_random_block) {
                     this.execute(world, new RandomTickRunnable(world, chunk));
                 }
                 if (world.isRaining()) {
-                    if (JsonConfiguration.getUserInstance().getValue("tick_lightning").getAsBoolean() && world.isThundering() && random.nextInt(100000) == 0) {
+                    if (SleepWarpConfig.tick_lightning && world.isThundering() && random.nextInt(100000) == 0) {
                         this.execute(world, new LightningTickRunnable(world, chunk));
                     }
                     
@@ -128,14 +126,12 @@ public class WarpEngine {
                 }
             }
             
-            if (JsonConfiguration.getUserInstance().getValue("tick_block_entities").getAsBoolean()) {
+            if (SleepWarpConfig.tick_block_entities) {
                 this.execute(world, new BlockTickRunnable(world));
             }
         }
-        
-        var canTickAnimals = JsonConfiguration.getUserInstance().getValue("tick_animals").getAsBoolean();
-        var canTickMonsters = JsonConfiguration.getUserInstance().getValue("tick_monsters").getAsBoolean();
-        if (canTickAnimals | canTickMonsters) {
+
+        if (SleepWarpConfig.tick_animals | SleepWarpConfig.tick_monsters) {
             this.execute(world, new MobTickRunnable(world, warpTickCount));
         }
         
@@ -171,7 +167,7 @@ public class WarpEngine {
             }
         }
         
-        if (JsonConfiguration.getUserInstance().getValue("action_bar_messages").getAsBoolean()) {
+        if (SleepWarpConfig.action_bar_messages) {
             for (var player : world.getPlayers()) {
                 player.sendMessage(actionBarText, true);
             }
