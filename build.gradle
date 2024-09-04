@@ -1,6 +1,7 @@
 plugins {
     id 'fabric-loom' version '1.7-SNAPSHOT'
     id "com.modrinth.minotaur" version "2.+"
+    id 'maven-publish'
 }
 
 repositories {
