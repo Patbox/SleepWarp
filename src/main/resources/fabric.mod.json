@@ -1,55 +1,45 @@
 {
 	"schemaVersion" : 1,
-
 	"id" : "sleepwarp",
 	"version" : "${version}",
 	"environment" : "*",
 
-	"name" : "SleepWarp",
+	"name" : "SleepWarp (Updated)",
 	"description" : "Accelerates time when sleeping instead of skipping directly to day.",
 	"license": "MPL 2.0",
 
-	"authors": [ "thegiggitybyte" ],
+	"authors": [
+		"thegiggitybyte (Original Creator)",
+		"Patbox (Updating and release)",
+		"Motschen (Update to 1.21, new config)"
+	],
 	"icon":  "assets/sleepwarp/icon.png",
 	"contact": {
-		"homepage": "https://modrinth.com/mod/sleep-warp",
-		"sources": "https://github.com/Giggitybyte/SleepWarp",
-		"issues": "https://github.com/Giggitybyte/SleepWarp/issues"
+		"homepage": "https://modrinth.com/mod/sleep-warp-updated",
+		"sources": "https://github.com/Patbox/SleepWarp",
+		"issues": "https://github.com/Patbox/SleepWarp/issues"
 	},
 
 	"custom": {
 		"modmenu": {
 			"links": {
-				"Modrinth": "https://modrinth.com/mod/sleep-warp",
-				"CurseForge": "https://www.curseforge.com/minecraft/mc-mods/sleep-warp",
-				"modmenu.discord": "https://discord.gg/UPKuVWgU4G"
+				"Modrinth": "https://modrinth.com/mod/sleep-warp-updated",
+				"modmenu.discord": "https://pb4.eu/discord"
 			}
 		}
 	},
-
 	"entrypoints": {
 		"main": [
           "me.thegiggitybyte.sleepwarp.SleepWarp"
-        ],
-		"modmenu": [
-          "me.thegiggitybyte.sleepwarp.config.ClientConfiguration"
         ]
 	},
-
 	"mixins" : [
       "sleepwarp.mixins.json"
 	],
-
 	"accessWidener": "sleepwarp.accesswidener",
-
 	"depends" : {
-		"fabric": ">=0.83.0+1.20",
-		"fabricloader" : ">=0.13.0",
-		"minecraft": ">=1.20"
-	},
-
-	"recommends": {
-		"modmenu": "7.0.1",
-		"yet-another-config-lib": "3.0.1"
+		"fabric": "*",
+		"fabricloader" : ">=0.15.0",
+		"minecraft": ">=1.21"
 	}
 }

@@ -4,5 +4,27 @@
   "text.sleepwarp.players_sleeping.more_required": "%s players sleeping. %s more needed to advance time.",
   "text.sleepwarp.day": "Day %s",
   "text.sleepwarp.until_thunderstorm": "%ss until the thunderstorm passes.",
-  "text.sleepwarp.until_dawn": "%ss until dawn."
+  "text.sleepwarp.until_dawn": "%ss until dawn.",
+
+  "sleepwarp.midnightconfig.title": "SleepWarp Config",
+  "sleepwarp.midnightconfig.category.features": "Features",
+  "sleepwarp.midnightconfig.category.tuning": "Tuning",
+  "sleepwarp.midnightconfig.max_ticks_added": "Max ticks added",
+  "sleepwarp.midnightconfig.player_multiplier": "Player multiplier",
+  "sleepwarp.midnightconfig.action_bar_messages": "Enable Action Bar messages",
+  "sleepwarp.midnightconfig.use_sleep_percentage": "Use sleep percentage",
+  "sleepwarp.midnightconfig.tick_simulation": "- Tick Simulation -",
+  "sleepwarp.midnightconfig.tick_game_time": "Gametime",
+  "sleepwarp.midnightconfig.tick_block_entities": "Block Entities",
+  "sleepwarp.midnightconfig.tick_block_entities.tooltip": "(i.e. Furnaces)",
+  "sleepwarp.midnightconfig.tick_random_block": "Ransom Block Ticks",
+  "sleepwarp.midnightconfig.tick_random_block.tooltip": "(i.e. Crop growth)",
+  "sleepwarp.midnightconfig.tick_snow_accumulation": "Snow Accumulation",
+  "sleepwarp.midnightconfig.tick_ice_freezing": "Ice Freezing",
+  "sleepwarp.midnightconfig.tick_lightning": "Lightning",
+  "sleepwarp.midnightconfig.tick_monsters": "Monsters",
+  "sleepwarp.midnightconfig.tick_animals": "Animals",
+  "sleepwarp.midnightconfig.monster_tick_multiplier": "Monster tick multiplier",
+  "sleepwarp.midnightconfig.animal_tick_multiplier": "Animal tick multiplier",
+  "sleepwarp.midnightconfig.log_error_messages": "Log error messages"
 }

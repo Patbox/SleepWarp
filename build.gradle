@@ -1,5 +1,6 @@
 plugins {
     id 'fabric-loom' version '1.7-SNAPSHOT'
+    id "com.modrinth.minotaur" version "2.+"
 }
 
 repositories {
@@ -14,7 +15,7 @@ sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version + (project.version_suffix ? ('_' + project.version_suffix) : '') + '+' + project.minecraft_version
+version = project.mod_version + '+' + project.minecraft_version
 group = project.maven_group
 
 dependencies {
@@ -37,6 +38,11 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
+
+
+    from("src/main/resources/data/sleepwarp/lang") {
+        into("assets/sleepwarp/lang")
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -50,5 +56,27 @@ java {
 jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+
+
+if (System.getenv("MODRINTH")) {
+    modrinth {
+        token = System.getenv("MODRINTH")
+        projectId = 'DlSXkZVT'// The ID of your modrinth project, slugs will not work.
+        versionNumber = "" + version // The version of the mod to upload.
+        versionType = "beta"
+        uploadFile = remapJar // This links to a task that builds your mod jar and sets "uploadFile" to the mod jar.
+        gameVersions = [((String) project.minecraft_version)]
+        changelog = System.getenv("CHANGELOG")
+        loaders = ["fabric", "quilt"]
+
+        dependencies {
+            required.project "midnightlib"
+        }
+    }
+
+    remapJar {
+        finalizedBy project.tasks.modrinth
     }
 }
