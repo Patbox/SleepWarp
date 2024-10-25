@@ -3,6 +3,7 @@ package me.thegiggitybyte.sleepwarp.runnable;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.SkeletonHorseEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
@@ -31,7 +32,7 @@ public class LightningTickRunnable implements Runnable {
         boolean skeletonHorseSpawn = canSpawnMobs && (new Random().nextDouble() < localDifficulty) && !world.getBlockState(blockPos.down()).isOf(Blocks.LIGHTNING_ROD);
         
         if (skeletonHorseSpawn) {
-            SkeletonHorseEntity skeletonHorseEntity = EntityType.SKELETON_HORSE.create(world);
+            SkeletonHorseEntity skeletonHorseEntity = EntityType.SKELETON_HORSE.create(world, SpawnReason.NATURAL);
             if (skeletonHorseEntity != null) {
                 skeletonHorseEntity.setTrapped(true);
                 skeletonHorseEntity.setBreedingAge(0);
@@ -40,7 +41,7 @@ public class LightningTickRunnable implements Runnable {
             }
         }
         
-        LightningEntity lightningEntity = EntityType.LIGHTNING_BOLT.create(world);
+        LightningEntity lightningEntity = EntityType.LIGHTNING_BOLT.create(world, SpawnReason.NATURAL);
         if (lightningEntity != null) {
             lightningEntity.refreshPositionAfterTeleport(Vec3d.ofBottomCenter(blockPos));
             lightningEntity.setCosmetic(skeletonHorseSpawn);

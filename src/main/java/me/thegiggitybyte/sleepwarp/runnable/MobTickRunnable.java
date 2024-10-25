@@ -52,7 +52,7 @@ public class MobTickRunnable implements Runnable {
         
         for (MobEntity entity : entities) {
             world.getServer().submit(() -> {
-                if (entity.isRemoved() || world.shouldCancelSpawn(entity) | !world.shouldTickEntity(entity.getBlockPos())) return;
+                if (entity.isRemoved() || !world.shouldTickEntity(entity.getBlockPos())) return;
                 
                 Entity entityVehicle = entity.getVehicle();
                 if (entityVehicle != null && (entityVehicle.isRemoved() || !entityVehicle.hasPassenger(entity))) {

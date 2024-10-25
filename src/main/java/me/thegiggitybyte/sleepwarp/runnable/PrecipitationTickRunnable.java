@@ -46,7 +46,7 @@ public class PrecipitationTickRunnable implements Runnable {
             }
         }
         
-        var precipitation = biome.getPrecipitation(topBlockPos.down());
+        var precipitation = biome.getPrecipitation(topBlockPos.down(), world.getSeaLevel());
         if (precipitation != Biome.Precipitation.NONE) {
             var blockState = world.getBlockState(topBlockPos.down());
             blockState.getBlock().precipitationTick(blockState, world, topBlockPos.down(), precipitation);
