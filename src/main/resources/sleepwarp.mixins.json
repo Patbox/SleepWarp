@@ -3,14 +3,12 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_17",
   "package": "me.thegiggitybyte.sleepwarp.mixin",
-
   "client": [
+    "common.tmpFix.MidnightConfigListWidgetMixin"
   ],
-
   "mixins": [
     "common.ServerWorldMixin"
   ],
-
   "injectors": {
     "defaultRequire": 1
   }
