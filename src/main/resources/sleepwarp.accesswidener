@@ -14,7 +14,6 @@ accessible method net/minecraft/server/world/ServerWorld tickWeather ()V
 accessible method net/minecraft/server/world/ServerWorld tickTime ()V
 accessible method net/minecraft/server/world/ServerWorld resetWeather ()V
 accessible method net/minecraft/server/world/ServerWorld wakeSleepingPlayers ()V
-accessible method net/minecraft/server/world/ServerWorld shouldCancelSpawn (Lnet/minecraft/entity/Entity;)Z
 accessible method net/minecraft/server/world/ServerWorld getLightningPos (Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/math/BlockPos;
 
 # ServerChunkLoadingManager
