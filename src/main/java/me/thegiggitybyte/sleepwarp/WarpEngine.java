@@ -89,7 +89,7 @@ public class WarpEngine {
         for (ChunkHolder chunkHolder : chunkStorage.entryIterator()) {
             WorldChunk chunk = chunkHolder.getWorldChunk();
             
-            if (chunk != null && world.shouldTick(chunk.getPos()) && chunkStorage.shouldTick(chunk.getPos())) {
+            if (chunk != null && world.shouldTickChunkAt(chunk.getPos()) && chunkStorage.shouldTick(chunk.getPos())) {
                 chunks.add(chunk);
             }
         }
