@@ -14,6 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.chunk.WorldChunk;
 
@@ -58,7 +59,7 @@ public class WarpEngine {
         
         if (SleepWarpConfig.use_sleep_percentage) {
             var percentRequired = world.getGameRules().getInt(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
-            var minimumSleeping = Math.max(1, (totalPlayers * percentRequired) / 100);
+            var minimumSleeping = Math.max(1, MathHelper.ceil((totalPlayers * percentRequired) / 100.0F));
             if (sleepingPlayers < minimumSleeping) return;
         }
         
