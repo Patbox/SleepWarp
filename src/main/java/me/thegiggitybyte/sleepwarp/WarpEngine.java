@@ -42,7 +42,7 @@ public class WarpEngine {
     }
     
     private ActionResult allowSleepTime(PlayerEntity player, BlockPos sleepingPos, boolean vanillaResult) {
-        if (!vanillaResult && (player.getWorld().getTimeOfDay() % DAY_LENGTH_TICKS > 12542))
+        if (!vanillaResult && (player.getEntityWorld().getTimeOfDay() % DAY_LENGTH_TICKS > 12542))
             return ActionResult.SUCCESS;
         else
             return ActionResult.PASS;
@@ -85,14 +85,12 @@ public class WarpEngine {
         // Collect valid chunks to tick.
         var chunkStorage = world.getChunkManager().chunkLoadingManager;
         var chunks = new ArrayList<WorldChunk>();
-        
-        for (ChunkHolder chunkHolder : chunkStorage.entryIterator()) {
-            WorldChunk chunk = chunkHolder.getWorldChunk();
-            
+
+        chunkStorage.forEachChunk(chunk -> {
             if (chunk != null && world.shouldTickChunkAt(chunk.getPos()) && chunkStorage.shouldTick(chunk.getPos())) {
                 chunks.add(chunk);
             }
-        }
+        });
         
         // Accelerate time and tick world.
         var doDaylightCycle = world.worldProperties.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE);
