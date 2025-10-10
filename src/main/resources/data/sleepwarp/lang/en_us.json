@@ -17,7 +17,7 @@
   "sleepwarp.midnightconfig.tick_game_time": "Gametime",
   "sleepwarp.midnightconfig.tick_block_entities": "Block Entities",
   "sleepwarp.midnightconfig.tick_block_entities.tooltip": "(i.e. Furnaces)",
-  "sleepwarp.midnightconfig.tick_random_block": "Ransom Block Ticks",
+  "sleepwarp.midnightconfig.tick_random_block": "Random Block Ticks",
   "sleepwarp.midnightconfig.tick_random_block.tooltip": "(i.e. Crop growth)",
   "sleepwarp.midnightconfig.tick_snow_accumulation": "Snow Accumulation",
   "sleepwarp.midnightconfig.tick_ice_freezing": "Ice Freezing",
