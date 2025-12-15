@@ -1,22 +1,21 @@
 package me.thegiggitybyte.sleepwarp.runnable;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LightningEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.mob.SkeletonHorseEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.rule.GameRules;
-
 import java.util.Random;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.animal.equine.SkeletonHorse;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.phys.Vec3;
 
 public class LightningTickRunnable implements Runnable {
-    private final ServerWorld world;
-    private final WorldChunk chunk;
+    private final ServerLevel world;
+    private final LevelChunk chunk;
     
-    public LightningTickRunnable(ServerWorld world, WorldChunk chunk) {
+    public LightningTickRunnable(ServerLevel world, LevelChunk chunk) {
         this.world = world;
         this.chunk = chunk;
     }
@@ -24,28 +23,28 @@ public class LightningTickRunnable implements Runnable {
     @Override
     public void run() {
         var chunkPos = chunk.getPos();
-        var randomPos = world.getRandomPosInChunk(chunkPos.getStartX(), 0, chunkPos.getStartZ(), 15);
-        var blockPos = world.getLightningPos(randomPos);
+        var randomPos = world.getBlockRandomPos(chunkPos.getMinBlockX(), 0, chunkPos.getMinBlockZ(), 15);
+        var blockPos = world.findLightningTargetAround(randomPos);
         
-        var canSpawnMobs = world.getGameRules().getValue(GameRules.DO_MOB_SPAWNING);
-        var localDifficulty = world.getLocalDifficulty(blockPos).getLocalDifficulty() * 0.01;
-        boolean skeletonHorseSpawn = canSpawnMobs && (new Random().nextDouble() < localDifficulty) && !world.getBlockState(blockPos.down()).isOf(Blocks.LIGHTNING_ROD);
+        var canSpawnMobs = world.getGameRules().get(GameRules.SPAWN_MOBS);
+        var localDifficulty = world.getCurrentDifficultyAt(blockPos).getEffectiveDifficulty() * 0.01;
+        boolean skeletonHorseSpawn = canSpawnMobs && (new Random().nextDouble() < localDifficulty) && !world.getBlockState(blockPos.below()).is(Blocks.LIGHTNING_ROD);
         
         if (skeletonHorseSpawn) {
-            SkeletonHorseEntity skeletonHorseEntity = EntityType.SKELETON_HORSE.create(world, SpawnReason.NATURAL);
+            SkeletonHorse skeletonHorseEntity = EntityType.SKELETON_HORSE.create(world, EntitySpawnReason.NATURAL);
             if (skeletonHorseEntity != null) {
-                skeletonHorseEntity.setTrapped(true);
-                skeletonHorseEntity.setBreedingAge(0);
-                skeletonHorseEntity.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-                world.spawnEntity(skeletonHorseEntity);
+                skeletonHorseEntity.setTrap(true);
+                skeletonHorseEntity.setAge(0);
+                skeletonHorseEntity.setPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+                world.addFreshEntity(skeletonHorseEntity);
             }
         }
         
-        LightningEntity lightningEntity = EntityType.LIGHTNING_BOLT.create(world, SpawnReason.NATURAL);
+        LightningBolt lightningEntity = EntityType.LIGHTNING_BOLT.create(world, EntitySpawnReason.NATURAL);
         if (lightningEntity != null) {
-            lightningEntity.refreshPositionAfterTeleport(Vec3d.ofBottomCenter(blockPos));
-            lightningEntity.setCosmetic(skeletonHorseSpawn);
-            world.spawnEntity(lightningEntity);
+            lightningEntity.snapTo(Vec3.atBottomCenterOf(blockPos));
+            lightningEntity.setVisualOnly(skeletonHorseSpawn);
+            world.addFreshEntity(lightningEntity);
         }
     }
 }

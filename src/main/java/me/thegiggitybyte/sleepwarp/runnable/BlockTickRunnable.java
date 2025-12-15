@@ -1,21 +1,21 @@
 package me.thegiggitybyte.sleepwarp.runnable;
 
 import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 
 public class BlockTickRunnable implements Runnable {
-    private final ServerWorld world;
+    private final ServerLevel world;
     
-    public BlockTickRunnable(ServerWorld world) {
+    public BlockTickRunnable(ServerLevel world) {
         this.world = world;
     }
     
     @Override
     public void run() {
-        for (BlockEntityTickInvoker tickInvoker : world.blockEntityTickers) {
+        for (TickingBlockEntity tickInvoker : world.blockEntityTickers) {
             try {
-                if (!tickInvoker.isRemoved() && world.shouldTickBlockPos(tickInvoker.getPos())) {
+                if (!tickInvoker.isRemoved() && world.shouldTickBlocksAt(tickInvoker.getPos())) {
                     tickInvoker.tick();
                 }
             } catch (Exception e) {

@@ -1,36 +1,35 @@
 package me.thegiggitybyte.sleepwarp.runnable;
 
 import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.server.world.ServerWorld;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.monster.Monster;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class MobTickRunnable implements Runnable {
-    private final ServerWorld world;
+    private final ServerLevel world;
     private final int tickCount;
     
-    public MobTickRunnable(ServerWorld world, int tickCount) {
+    public MobTickRunnable(ServerLevel world, int tickCount) {
         this.world = world;
         this.tickCount = tickCount;
     }
     
     @Override
     public void run() {
-        var animals = new ArrayList<MobEntity>();
-        var monsters = new ArrayList<MobEntity>();
+        var animals = new ArrayList<Mob>();
+        var monsters = new ArrayList<Mob>();
         
-        world.entityList.forEach(entity -> {
+        world.entityTickList.forEach(entity -> {
             if (entity.isRemoved()) return;
             
-            if (SleepWarpConfig.tick_animals && entity instanceof AnimalEntity animal)
+            if (SleepWarpConfig.tick_animals && entity instanceof Animal animal)
                 animals.add(animal);
-            else if (SleepWarpConfig.tick_monsters && entity instanceof HostileEntity monster)
+            else if (SleepWarpConfig.tick_monsters && entity instanceof Monster monster)
                 monsters.add(monster);
         });
         
@@ -47,19 +46,19 @@ public class MobTickRunnable implements Runnable {
         }
     }
     
-    private void tickMobs(List<MobEntity> entities) {
+    private void tickMobs(List<Mob> entities) {
         Collections.shuffle(entities);
         
-        for (MobEntity entity : entities) {
+        for (Mob entity : entities) {
             world.getServer().submit(() -> {
-                if (entity.isRemoved() || !world.shouldTickEntityAt(entity.getBlockPos())) return;
+                if (entity.isRemoved() || !world.isPositionEntityTicking(entity.blockPosition())) return;
                 
                 Entity entityVehicle = entity.getVehicle();
                 if (entityVehicle != null && (entityVehicle.isRemoved() || !entityVehicle.hasPassenger(entity))) {
                     entity.stopRiding();
                 }
                 
-                world.tickEntity(entity);
+                world.tickNonPassenger(entity);
             });
         }
     }

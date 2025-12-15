@@ -4,20 +4,18 @@ import me.thegiggitybyte.sleepwarp.config.SleepWarpConfig;
 import me.thegiggitybyte.sleepwarp.runnable.*;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.rule.GameRules;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.gamerules.GameRules;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -41,31 +39,31 @@ public class WarpEngine {
         instance = new WarpEngine();
     }
     
-    private ActionResult allowSleepTime(PlayerEntity player, BlockPos sleepingPos, boolean vanillaResult) {
-        if (!vanillaResult && (player.getEntityWorld().getTimeOfDay() % DAY_LENGTH_TICKS > 12542))
-            return ActionResult.SUCCESS;
+    private InteractionResult allowSleepTime(Player player, BlockPos sleepingPos, boolean vanillaResult) {
+        if (!vanillaResult && (player.level().getDayTime() % DAY_LENGTH_TICKS > 12542))
+            return InteractionResult.SUCCESS;
         else
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
     }
     
-    private void onEndTick(ServerWorld world) {
+    private void onEndTick(ServerLevel world) {
         // Pre-warp checks.
-        if (!world.isSleepingEnabled()) return;
+        if (!world.canSleepThroughNights()) return;
         
-        var totalPlayers = world.getPlayers().size();
-        var sleepingPlayers = world.getPlayers().stream().filter(PlayerEntity::canResetTimeBySleeping).count();
+        var totalPlayers = world.players().size();
+        var sleepingPlayers = world.players().stream().filter(Player::isSleepingLongEnough).count();
         if (sleepingPlayers == 0) return;
         
         if (SleepWarpConfig.use_sleep_percentage) {
-            var percentRequired = world.getGameRules().getValue(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
-            var minimumSleeping = Math.max(1, MathHelper.ceil((totalPlayers * percentRequired) / 100.0F));
+            var percentRequired = world.getGameRules().get(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
+            var minimumSleeping = Math.max(1, Mth.ceil((totalPlayers * percentRequired) / 100.0F));
             if (sleepingPlayers < minimumSleeping) return;
         }
         
         // Determine amount of ticks to add to time.
         var maxTicksAdded = Math.max(10, SleepWarpConfig.max_ticks_added);
         var playerMultiplier = Math.max(0.05, Math.min(1.0, SleepWarpConfig.player_multiplier));
-        var worldTime = world.getTimeOfDay() % DAY_LENGTH_TICKS;
+        var worldTime = world.getDayTime() % DAY_LENGTH_TICKS;
         int warpTickCount;
         
         if (worldTime + maxTicksAdded < DAY_LENGTH_TICKS) {
@@ -83,30 +81,30 @@ public class WarpEngine {
         }
         
         // Collect valid chunks to tick.
-        var chunkStorage = world.getChunkManager().chunkLoadingManager;
-        var chunks = new ArrayList<WorldChunk>();
+        var chunkStorage = world.getChunkSource().chunkMap;
+        var chunks = new ArrayList<LevelChunk>();
 
-        chunkStorage.forEachChunk(chunk -> {
-            if (chunk != null && world.shouldTickChunkAt(chunk.getPos()) && chunkStorage.shouldTick(chunk.getPos())) {
+        chunkStorage.forEachReadyToSendChunk(chunk -> {
+            if (chunk != null && world.anyPlayerCloseEnoughForSpawning(chunk.getPos()) && chunkStorage.anyPlayerCloseEnoughForSpawning(chunk.getPos())) {
                 chunks.add(chunk);
             }
         });
         
         // Accelerate time and tick world.
-        var doDaylightCycle = world.worldProperties.getGameRules().getValue(GameRules.ADVANCE_TIME);
+        var doDaylightCycle = world.serverLevelData.getGameRules().get(GameRules.ADVANCE_TIME);
         
         for (var tick = 0; tick < warpTickCount; tick++) {
-            world.tickWeather();
-            world.calculateAmbientDarkness();
+            world.advanceWeatherCycle();
+            world.updateSkyBrightness();
             if (SleepWarpConfig.tick_game_time) {
                 world.tickTime();
             } else {
-                world.setTimeOfDay(world.getTimeOfDay() + 1L);
+                world.setDayTime(world.getDayTime() + 1L);
             }
 
 
-            var packet = new WorldTimeUpdateS2CPacket(world.getTime(), world.getTimeOfDay(), doDaylightCycle);
-            world.getServer().getPlayerManager().sendToDimension(packet, world.getRegistryKey());
+            var packet = new ClientboundSetTimePacket(world.getGameTime(), world.getDayTime(), doDaylightCycle);
+            world.getServer().getPlayerList().broadcastAll(packet, world.dimension());
             
             Collections.shuffle(chunks);
             for (var chunk : chunks) {
@@ -133,46 +131,46 @@ public class WarpEngine {
             this.execute(world, new MobTickRunnable(world, warpTickCount));
         }
         
-        worldTime = world.getTimeOfDay() % DAY_LENGTH_TICKS;
-        MutableText actionBarText = null;
+        worldTime = world.getDayTime() % DAY_LENGTH_TICKS;
+        MutableComponent actionBarText = null;
         
         if (worldTime == 0) {
-            if (world.isRaining()) world.resetWeather();
-            world.wakeSleepingPlayers();
+            if (world.isRaining()) world.resetWeatherCycle();
+            world.wakeUpAllPlayers();
             
-            var currentDay = String.valueOf(world.getTimeOfDay() / DAY_LENGTH_TICKS);
-            actionBarText = Text.translatable("text.sleepwarp.day", Text.literal(currentDay).formatted(Formatting.GOLD));
+            var currentDay = String.valueOf(world.getDayTime() / DAY_LENGTH_TICKS);
+            actionBarText = Component.translatable("text.sleepwarp.day", Component.literal(currentDay).withStyle(ChatFormatting.GOLD));
         } else if (worldTime > 0) {
             var remainingTicks = world.isThundering()
-                    ? world.worldProperties.getThunderTime()
+                    ? world.serverLevelData.getThunderTime()
                     : DAY_LENGTH_TICKS - worldTime;
             
             if (remainingTicks > 0) {
-                actionBarText = Text.empty();
+                actionBarText = Component.empty();
                 if (totalPlayers > 1) {
                     var requiredPercentage = 1.0 - playerMultiplier;
                     var actualPercentage = (double) sleepingPlayers / totalPlayers;
-                    var indicatorColor = actualPercentage >= requiredPercentage ? Formatting.DARK_GREEN : Formatting.RED;
+                    var indicatorColor = actualPercentage >= requiredPercentage ? ChatFormatting.DARK_GREEN : ChatFormatting.RED;
                     var playerNoun = (sleepingPlayers == 1 ? "player" : "players");
-                    actionBarText.append(Text.translatable("text.sleepwarp." + playerNoun + "_sleeping", Text.literal("⌛ " + sleepingPlayers + ' ').formatted(indicatorColor)));
+                    actionBarText.append(Component.translatable("text.sleepwarp." + playerNoun + "_sleeping", Component.literal("⌛ " + sleepingPlayers + ' ').withStyle(indicatorColor)));
                 } else {
-                    actionBarText.append(Text.literal("⌛").formatted(Formatting.GOLD));
+                    actionBarText.append(Component.literal("⌛").withStyle(ChatFormatting.GOLD));
                 }
                 
                 var remainingSeconds = Math.round(((double) remainingTicks / warpTickCount) / 20);
-                actionBarText.append(ScreenTexts.space());
-                actionBarText.append(Text.translatable("text.sleepwarp.until_" + (world.isThundering() ? "thunderstorm" : "dawn"), Text.literal(String.valueOf(remainingSeconds))));
+                actionBarText.append(CommonComponents.space());
+                actionBarText.append(Component.translatable("text.sleepwarp.until_" + (world.isThundering() ? "thunderstorm" : "dawn"), Component.literal(String.valueOf(remainingSeconds))));
             }
         }
         
         if (SleepWarpConfig.action_bar_messages) {
-            for (var player : world.getPlayers()) {
-                player.sendMessage(actionBarText, true);
+            for (var player : world.players()) {
+                player.displayClientMessage(actionBarText, true);
             }
         }
     }
 
-    private void execute(ServerWorld world, Runnable runnable) {
+    private void execute(ServerLevel world, Runnable runnable) {
         //CompletableFuture.runAsync(runnable);
         world.getServer().execute(runnable);
     }

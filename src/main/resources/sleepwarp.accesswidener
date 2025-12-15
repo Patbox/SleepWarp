@@ -1,21 +1,16 @@
-accessWidener v1 named
+accessWidener	v1	named
+accessible	field	net/minecraft/world/level/Level	tickingBlockEntities	Z
+accessible	field	net/minecraft/world/level/Level	pendingBlockEntityTickers	Ljava/util/List;
+accessible	field	net/minecraft/world/level/Level	blockEntityTickers	Ljava/util/List;
 
-# World
-accessible field net/minecraft/world/World iteratingTickingBlockEntities Z
-accessible field net/minecraft/world/World pendingBlockEntityTickers Ljava/util/List;
-accessible field net/minecraft/world/World blockEntityTickers Ljava/util/List;
+accessible	field	net/minecraft/server/level/ServerLevel	entityManager	Lnet/minecraft/world/level/entity/PersistentEntitySectionManager;
+accessible	field	net/minecraft/server/level/ServerLevel	serverLevelData	Lnet/minecraft/world/level/storage/ServerLevelData;
+accessible	field	net/minecraft/server/level/ServerLevel	entityTickList	Lnet/minecraft/world/level/entity/EntityTickList;
+accessible	field	net/minecraft/server/level/ServerLevel	handlingTick	Z
+accessible	method	net/minecraft/server/level/ServerLevel	advanceWeatherCycle	()V
+accessible	method	net/minecraft/server/level/ServerLevel	tickTime	()V
+accessible	method	net/minecraft/server/level/ServerLevel	resetWeatherCycle	()V
+accessible	method	net/minecraft/server/level/ServerLevel	wakeUpAllPlayers	()V
+accessible	method	net/minecraft/server/level/ServerLevel	findLightningTargetAround	(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/core/BlockPos;
 
-# ServerWorld
-accessible field net/minecraft/server/world/ServerWorld entityManager Lnet/minecraft/server/world/ServerEntityManager;
-accessible field net/minecraft/server/world/ServerWorld worldProperties Lnet/minecraft/world/level/ServerWorldProperties;
-accessible field net/minecraft/server/world/ServerWorld entityList Lnet/minecraft/world/EntityList;
-accessible field net/minecraft/server/world/ServerWorld inBlockTick Z
-accessible method net/minecraft/server/world/ServerWorld tickWeather ()V
-accessible method net/minecraft/server/world/ServerWorld tickTime ()V
-accessible method net/minecraft/server/world/ServerWorld resetWeather ()V
-accessible method net/minecraft/server/world/ServerWorld wakeSleepingPlayers ()V
-accessible method net/minecraft/server/world/ServerWorld getLightningPos (Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/math/BlockPos;
-
-# ServerChunkLoadingManager
-accessible method net/minecraft/server/world/ServerChunkLoadingManager entryIterator ()Ljava/lang/Iterable;
-accessible method net/minecraft/server/world/ServerChunkLoadingManager shouldTick (Lnet/minecraft/util/math/ChunkPos;)Z
+accessible	method	net/minecraft/server/level/ChunkMap	anyPlayerCloseEnoughForSpawning	(Lnet/minecraft/world/level/ChunkPos;)Z

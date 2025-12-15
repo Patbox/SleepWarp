@@ -1,42 +1,42 @@
 package me.thegiggitybyte.sleepwarp.runnable;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.rule.GameRules;
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.gamerules.GameRules;
 
 public class RandomTickRunnable implements Runnable {
-    private final ServerWorld world;
-    private final WorldChunk chunk;
-    private Random random;
+    private final ServerLevel world;
+    private final LevelChunk chunk;
+    private RandomSource random;
     
-    public  RandomTickRunnable(ServerWorld world, WorldChunk chunk) {
+    public  RandomTickRunnable(ServerLevel world, LevelChunk chunk) {
         this.world = world;
         this.chunk = chunk;
-        random = Random.create();
+        random = RandomSource.create();
     }
     
     @Override
     public void run() {
-        var startX = chunk.getPos().getStartX();
-        var startZ = chunk.getPos().getStartZ();
-        var chunkSections = chunk.getSectionArray();
+        var startX = chunk.getPos().getMinBlockX();
+        var startZ = chunk.getPos().getMinBlockZ();
+        var chunkSections = chunk.getSections();
         
         for (var sectionIndex = 0; sectionIndex < chunkSections.length; ++sectionIndex) {
             var chunkSection = chunkSections[sectionIndex];
-            if (!chunkSection.hasRandomTicks()) continue;
+            if (!chunkSection.isRandomlyTicking()) continue;
             
-            var sectionCoordinate = chunk.sectionIndexToCoord(sectionIndex);
-            var startY = ChunkSectionPos.getBlockCoord(sectionCoordinate);
+            var sectionCoordinate = chunk.getSectionYFromSectionIndex(sectionIndex);
+            var startY = SectionPos.sectionToBlockCoord(sectionCoordinate);
             
-            for(int i = 0; i < world.getGameRules().getValue(GameRules.RANDOM_TICK_SPEED); ++i) {
-                var blockPos = world.getRandomPosInChunk(startX, startY, startZ, 15);
+            for(int i = 0; i < world.getGameRules().get(GameRules.RANDOM_TICK_SPEED); ++i) {
+                var blockPos = world.getBlockRandomPos(startX, startY, startZ, 15);
                 var blockState = chunkSection.getBlockState(blockPos.getX() - startX , blockPos.getY() - startY, blockPos.getZ() - startZ);
                 var fluidState = blockState.getFluidState();
                 
-                if (blockState.hasRandomTicks()) blockState.randomTick(world, blockPos, random);
-                if (fluidState.hasRandomTicks()) fluidState.onRandomTick(world, blockPos, random);
+                if (blockState.isRandomlyTicking()) blockState.randomTick(world, blockPos, random);
+                if (fluidState.isRandomlyTicking()) fluidState.randomTick(world, blockPos, random);
             }
         }
     }
