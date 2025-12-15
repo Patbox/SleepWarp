@@ -15,8 +15,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.rule.GameRules;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,11 +32,10 @@ public class WarpEngine {
     
     private WarpEngine() {
         random = new Random();
-        
-        EntitySleepEvents.ALLOW_SLEEP_TIME.register(this::allowSleepTime);
+        //EntitySleepEvents.ALLOW_SLEEPING.register(this::allowSleepTime);
         ServerTickEvents.END_WORLD_TICK.register(this::onEndTick);
     }
-    
+
     public static void initialize() {
         if (instance != null) throw new AssertionError();
         instance = new WarpEngine();
@@ -58,7 +57,7 @@ public class WarpEngine {
         if (sleepingPlayers == 0) return;
         
         if (SleepWarpConfig.use_sleep_percentage) {
-            var percentRequired = world.getGameRules().getInt(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
+            var percentRequired = world.getGameRules().getValue(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
             var minimumSleeping = Math.max(1, MathHelper.ceil((totalPlayers * percentRequired) / 100.0F));
             if (sleepingPlayers < minimumSleeping) return;
         }
@@ -94,7 +93,7 @@ public class WarpEngine {
         });
         
         // Accelerate time and tick world.
-        var doDaylightCycle = world.worldProperties.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE);
+        var doDaylightCycle = world.worldProperties.getGameRules().getValue(GameRules.ADVANCE_TIME);
         
         for (var tick = 0; tick < warpTickCount; tick++) {
             world.tickWeather();

@@ -9,10 +9,10 @@ import net.minecraft.server.world.SleepManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.rule.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -54,7 +54,7 @@ public abstract class ServerWorldMixin extends World {
         if (inBedCount == 0) {
             messageText = Text.translatable("text.sleepwarp.players_sleeping", tallyText.formatted(Formatting.DARK_GRAY));
         } else if (SleepWarpConfig.use_sleep_percentage) {
-            var percentRequired = world.getGameRules().getInt(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
+            var percentRequired = world.getGameRules().getValue(GameRules.PLAYERS_SLEEPING_PERCENTAGE);
             var minSleepingCount = Math.max(1, MathHelper.ceil((playerCount * percentRequired) / 100.0F));
             
             if (sleepingCount < minSleepingCount && minSleepingCount - inBedCount > 0) {

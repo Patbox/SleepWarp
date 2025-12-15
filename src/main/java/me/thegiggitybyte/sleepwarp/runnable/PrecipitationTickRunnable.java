@@ -5,10 +5,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SnowBlock;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.rule.GameRules;
 
 public class PrecipitationTickRunnable implements Runnable {
     private final ServerWorld world;
@@ -30,7 +30,7 @@ public class PrecipitationTickRunnable implements Runnable {
         }
         
         if (SleepWarpConfig.tick_snow_accumulation) {
-            var layerHeight = world.getGameRules().getInt(GameRules.SNOW_ACCUMULATION_HEIGHT);
+            var layerHeight = world.getGameRules().getValue(GameRules.MAX_SNOW_ACCUMULATION_HEIGHT);
             if (layerHeight == 0 || !biome.canSetSnow(world, topBlockPos)) return;
             
             var blockState = world.getBlockState(topBlockPos);

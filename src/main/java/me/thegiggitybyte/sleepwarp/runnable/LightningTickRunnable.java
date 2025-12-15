@@ -7,8 +7,8 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.SkeletonHorseEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.rule.GameRules;
 
 import java.util.Random;
 
@@ -27,7 +27,7 @@ public class LightningTickRunnable implements Runnable {
         var randomPos = world.getRandomPosInChunk(chunkPos.getStartX(), 0, chunkPos.getStartZ(), 15);
         var blockPos = world.getLightningPos(randomPos);
         
-        var canSpawnMobs = world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING);
+        var canSpawnMobs = world.getGameRules().getValue(GameRules.DO_MOB_SPAWNING);
         var localDifficulty = world.getLocalDifficulty(blockPos).getLocalDifficulty() * 0.01;
         boolean skeletonHorseSpawn = canSpawnMobs && (new Random().nextDouble() < localDifficulty) && !world.getBlockState(blockPos.down()).isOf(Blocks.LIGHTNING_ROD);
         
