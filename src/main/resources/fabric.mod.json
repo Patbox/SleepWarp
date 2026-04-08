@@ -38,8 +38,8 @@
 	],
 	"accessWidener": "sleepwarp.accesswidener",
 	"depends" : {
-		"fabric": "*",
+		"fabric-api": "*",
 		"fabricloader" : ">=0.15.0",
-		"minecraft": ">=1.21"
+		"minecraft": ">=26.1-"
 	}
 }

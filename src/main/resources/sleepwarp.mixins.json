@@ -6,6 +6,7 @@
   "client": [
   ],
   "mixins": [
+    "common.PlayerMixin",
     "common.ServerLevelMixin"
   ],
   "injectors": {

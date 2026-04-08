@@ -68,7 +68,7 @@ public abstract class ServerLevelMixin extends Level {
         
         if (messageText != null) {
             for (var player : world.players()) {
-                player.displayClientMessage(messageText, true);
+                player.sendSystemMessage(messageText, true);
             }
         }
     }
